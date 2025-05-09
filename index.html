@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punctuation Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f9ff;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            padding: 0 3px;
+            border-radius: 4px;
+        }
+        
+        .correct-answer {
+            background-color: #d1fae5;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 2px solid #10b981;
+            position: relative;
+        }
+        
+        .wrong-answer {
+            background-color: #fee2e2;
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 2px solid #ef4444;
+            position: relative;
+        }
+        
+        .correct-answer::after {
+            content: "✓";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #10b981;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .wrong-answer::after {
+            content: "✗";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #ef4444;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .drop-zone {
+            min-height: 40px;
+            min-width: 20px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .drop-zone.active {
+            border-color: #60a5fa;
+            background-color: #dbeafe;
+        }
+        
+        .spacing-example {
+            letter-spacing: 0.5px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .spacing-highlight {
+            background-color: #fecaca;
+            padding: 0 2px;
+        }
+        
+        .spacing-correct {
+            background-color: #bbf7d0;
+            padding: 0 2px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .punctuation-card {
+            transition: all 0.3s ease;
+        }
+        
+        .punctuation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feedback-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .feedback-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .footer {
+            background-color: #4338ca;
+            padding: 16px;
+            border-radius: 0 0 12px 12px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container p-6 my-8 bg-white rounded-xl shadow-lg">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-2">Punctuation Master</h1>
+            <p class="text-gray-600">Learn English punctuation, spacing, and formatting through fun exercises! <br>(The American English usage prevails.)</p>
+        </header>
+        
+        <!-- Navigation Tabs -->
+        <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+            <button id="tab-learn" class="tab-btn px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap">Learn</button>
+            <button id="tab-practice" class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap">Practice</button>
+            <button id="tab-challenge" class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap">Challenge</button>
+            <button id="tab-advanced" class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-indigo-600 whitespace-nowrap">Advanced Punctuation</button>
+        </div>
+        
+        <!-- Learn Tab Content -->
+        <div id="learn-content" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Basic Punctuation Marks</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-blue-700 mb-2">Period (.)</h3>
+                        <p class="text-gray-700">Used to end a sentence.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> I love learning English<span class="text-blue-700 font-bold">.</span></p>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-purple-700 mb-2">Question Mark (?)</h3>
+                        <p class="text-gray-700">Used at the end of a question.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> Do you speak English<span class="text-purple-700 font-bold">?</span></p>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-green-700 mb-2">Comma (,)</h3>
+                        <p class="text-gray-700">Used to separate items in a list or to separate clauses.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> I bought apples<span class="text-green-700 font-bold">,</span> oranges<span class="text-green-700 font-bold">,</span> and bananas.</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-red-700 mb-2">Exclamation Mark (!)</h3>
+                        <p class="text-gray-700">Used to show strong emotion or emphasis.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> That's amazing<span class="text-red-700 font-bold">!</span></p>
+                    </div>
+                </div>
+                
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Proper Spacing with Punctuation</h2>
+                
+                <div class="bg-amber-50 p-4 rounded-lg mb-6">
+                    <h3 class="font-bold text-amber-700 mb-2">Spacing Rules</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-3">
+                        <li><strong>No space before</strong> punctuation marks (period, comma, question mark, exclamation mark)</li>
+                        <li><strong>One space after</strong> punctuation marks</li>
+                    </ul>
+                    
+                    <div class="mt-4 border-t border-amber-200 pt-4">
+                        <h4 class="font-semibold text-amber-700 mb-2">Examples:</h4>
+                        
+                        <div class="spacing-example mb-2">
+                            <span class="spacing-highlight">Incorrect:</span> I bought apples <span class="spacing-highlight">,</span> oranges <span class="spacing-highlight">,</span> and bananas.
+                        </div>
+                        
+                        <div class="spacing-example mb-2">
+                            <span class="spacing-correct">Correct:</span> I bought apples<span class="spacing-correct">,</span> oranges<span class="spacing-correct">,</span> and bananas.
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Capitalization Rules</h2>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg mb-6">
+                    <h3 class="font-bold text-indigo-700 mb-2">Capitalization</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Capitalize the first word of every sentence</li>
+                        <li>Capitalize proper nouns (names, places, brands)</li>
+                    </ul>
+                    <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> <span class="text-indigo-700 font-bold">M</span>y friend <span class="text-indigo-700 font-bold">J</span>ohn visited <span class="text-indigo-700 font-bold">P</span>aris last summer.</p>
+                </div>
+                
+                <div class="text-center">
+                    <button id="go-to-practice" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        Practice Now →
+                    </button>
+                    <button id="go-to-advanced" class="ml-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                        Advanced Punctuation →
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Practice Tab Content -->
+        <div id="practice-content" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Practice Exercises</h2>
+                
+                <!-- Exercise 1: Punctuation -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Exercise 1: Add the missing punctuation</h3>
+                        <div class="flex items-center">
+                            <span id="exercise1-score" class="text-sm font-medium text-gray-500">Score: 0/5</span>
+                            <button id="new-exercise1" class="ml-4 text-sm text-indigo-600 hover:text-indigo-800">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div id="exercise1-container" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700 mb-4">Select the correct punctuation for each sentence:</p>
+                        
+                        <div class="space-y-4" id="exercise1-questions">
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">1. Where are you going</p>
+                                <div class="flex space-x-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">.</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">?</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">!</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">2. I need three items a pen, paper, and eraser</p>
+                                <div class="flex space-x-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">.</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">?</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">!</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">:</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">3. That was an amazing performance</p>
+                                <div class="flex space-x-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">.</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">?</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">!</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">4. She bought apples oranges, and bananas</p>
+                                <div class="flex space-x-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">.</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">?</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">!</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">,</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">5. The class ends at 3 PM</p>
+                                <div class="flex space-x-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">.</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">?</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">!</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise 2: Spacing -->
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Exercise 2: Fix the spacing</h3>
+                        <div class="flex items-center">
+                            <span id="exercise2-score" class="text-sm font-medium text-gray-500">Score: 0/3</span>
+                            <button id="new-exercise2" class="ml-4 text-sm text-indigo-600 hover:text-indigo-800">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div id="exercise2-container" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700 mb-4">Click on each sentence to fix the spacing:</p>
+                        
+                        <div class="space-y-4" id="exercise2-questions">
+                            <div class="spacing-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="I bought apples, oranges, and bananas.">
+                                I bought apples , oranges , and bananas .
+                            </div>
+                            
+                            <div class="spacing-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="Where are you going? I need to know.">
+                                Where are you going ? I need to know .
+                            </div>
+                            
+                            <div class="spacing-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="He loves pizza! It's his favorite food.">
+                                He loves pizza ! It's his favorite food .
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise 3: Capitalization -->
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Exercise 3: Fix the capitalization</h3>
+                        <div class="flex items-center">
+                            <span id="exercise3-score" class="text-sm font-medium text-gray-500">Score: 0/3</span>
+                            <button id="new-exercise3" class="ml-4 text-sm text-indigo-600 hover:text-indigo-800">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div id="exercise3-container" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700 mb-4">Click on each sentence to fix the capitalization:</p>
+                        
+                        <div class="space-y-4" id="exercise3-questions">
+                            <div class="capitalization-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="My friend John lives in New York.">
+                                my friend john lives in new york.
+                            </div>
+                            
+                            <div class="capitalization-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="The movie starts at 8 PM on Friday.">
+                                the movie starts at 8 pm on friday.
+                            </div>
+                            
+                            <div class="capitalization-question p-3 bg-gray-50 rounded-lg cursor-pointer" data-correct="She studies English and Spanish at Harvard University.">
+                                she studies english and spanish at harvard university.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="go-to-challenge" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                            Try the Challenge →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Challenge Tab Content -->
+        <div id="challenge-content" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Punctuation Challenge</h2>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-700">Fix all the errors in this text</h3>
+                        <div>
+                            <span id="challenge-score" class="text-sm font-medium text-gray-500">Score: 0/10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-700 mb-2">Instructions: Click on the text to edit and fix all punctuation, spacing, and capitalization errors.</p>
+                        <div id="challenge-text" class="border border-gray-200 rounded-lg p-4 text-lg leading-relaxed cursor-pointer">
+                            last summer i visited paris rome and barcelona the weather was amazing do you know what i enjoyed most it was the food my favorite restaurants were cafe marche in paris trattoria romano in rome and el quim in barcelona
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="check-challenge" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                            Check My Answers
+                        </button>
+                        <button id="new-challenge" class="ml-4 bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                            New Challenge
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="results-container" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg p-6 text-center">
+                    <h3 class="text-2xl font-bold text-indigo-800 mb-2">Challenge Complete!</h3>
+                    <p id="final-score" class="text-xl text-gray-700 mb-4">Your score: 0/10</p>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-2">Your Punctuation Mastery Level:</h4>
+                        <div id="mastery-level" class="text-xl font-bold text-indigo-700">Beginner</div>
+                    </div>
+                    
+                    <button id="restart-challenge" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Advanced Punctuation Tab Content -->
+        <div id="advanced-content" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Advanced Punctuation Marks</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-pink-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-pink-700 mb-2">Quotation Marks (" " and ' ')</h3>
+                        <p class="text-gray-700">Used to indicate direct speech or quotations; a quote or certain title within a quote.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Double quotation marks:</span> She said, <span class="text-pink-700 font-bold">"</span>I'll be there soon.<span class="text-pink-700 font-bold">"</span></p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Single quotation marks:</span> She said, "<span class="text-pink-700 font-bold">'</span>Dream of the Red Chamber<span class="text-pink-700 font-bold">'</span> is a classic novel."</p>
+                    </div>
+                    
+                    <div class="bg-amber-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-amber-700 mb-2">Semicolon (;)</h3>
+                        <p class="text-gray-700">Used to connect related independent clauses.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> I have a big test tomorrow<span class="text-amber-700 font-bold">;</span> I need to study tonight.</p>
+                    </div>
+                    
+                    <div class="bg-teal-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-teal-700 mb-2">Colon (:)</h3>
+                        <p class="text-gray-700">Used to introduce a list, explanation, or definition.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> I need three things<span class="text-teal-700 font-bold">:</span> a pen, paper, and a calculator.</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-blue-700 mb-2">Hyphen (-)</h3>
+                        <p class="text-gray-700">Used to join words or parts of words.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> This is a well<span class="text-blue-700 font-bold">-</span>written essay.</p>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-indigo-700 mb-2">Dash (—)</h3>
+                        <p class="text-gray-700">Used to indicate a break in thought or to emphasize information.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> The concert <span class="text-indigo-700 font-bold">—</span> which was sold out <span class="text-indigo-700 font-bold">—</span> was amazing.</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-purple-700 mb-2">Ellipsis (...)</h3>
+                        <p class="text-gray-700">Used to indicate an omission or a pause in speech.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> I'm not sure<span class="text-purple-700 font-bold">...</span> maybe we should wait.</p>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-green-700 mb-2">Parentheses ( )</h3>
+                        <p class="text-gray-700">Used to include additional information or clarification.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Example:</span> The meeting <span class="text-green-700 font-bold">(</span>which lasted two hours<span class="text-green-700 font-bold">)</span> was productive.</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg punctuation-card">
+                        <h3 class="font-bold text-red-700 mb-2">Apostrophe (')</h3>
+                        <p class="text-gray-700">Used to show possession or contraction.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Possession:</span> That is John<span class="text-red-700 font-bold">'</span>s book.</p>
+                        <p class="mt-2 text-gray-600"><span class="highlight">Contraction:</span> I<span class="text-red-700 font-bold">'</span>m going to the store.</p>
+                    </div>
+                </div>
+                
+                <h2 class="text-2xl font-semibold text-indigo-800 mb-4">Advanced Punctuation Practice</h2>
+                
+                <!-- Advanced Exercise -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Exercise: Choose the correct advanced punctuation</h3>
+                        <div class="flex items-center">
+                            <span id="advanced-exercise-score" class="text-sm font-medium text-gray-500">Score: 0/5</span>
+                            <button id="new-advanced-exercise" class="ml-4 text-sm text-indigo-600 hover:text-indigo-800">Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div id="advanced-exercise-container" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700 mb-4">Select the correct punctuation for each sentence:</p>
+                        
+                        <div class="space-y-4" id="advanced-exercise-questions">
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">1. She said ___ I'll be there at 8 PM ___</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">"</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">'</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">(</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">-</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">2. I need to buy several items ___ milk, bread, eggs, and cheese.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">;</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">:</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">-</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">3. I'm not sure what to do ___ perhaps we should ask for help.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">:</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">...</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">;</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">4. The concert ___ which was sold out ___ was amazing.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">()</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">""</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">—</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">-</button>
+                                </div>
+                            </div>
+                            
+                            <div class="question">
+                                <p class="text-gray-700 mb-2">5. I have a big test tomorrow ___ I need to study tonight.</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">,</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="true">;</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">:</button>
+                                    <button class="punctuation-option px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200" data-correct="false">.</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Challenge -->
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-700">Advanced Challenge: Fix all punctuation</h3>
+                        <div>
+                            <span id="advanced-challenge-score" class="text-sm font-medium text-gray-500">Score: 0/10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                        <p class="text-gray-700 mb-2">Instructions: Click on the text to edit and fix all punctuation errors, including advanced punctuation.</p>
+                        <div id="advanced-challenge-text" class="border border-gray-200 rounded-lg p-4 text-lg leading-relaxed cursor-pointer">
+                            the professor said the exam which is scheduled for friday will cover chapters 1 5 she mentioned that we should focus on three main topics grammar vocabulary and writing she added i expect everyone to be well prepared
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button id="check-advanced-challenge" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                                Check My Answers
+                            </button>
+                            <button id="new-advanced-challenge" class="ml-4 bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                                New Challenge
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="advanced-results-container" class="hidden bg-indigo-50 border border-indigo-200 rounded-lg p-6 text-center">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-2">Advanced Challenge Complete!</h3>
+                        <p id="advanced-final-score" class="text-xl text-gray-700 mb-4">Your score: 0/10</p>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-2">Your Advanced Punctuation Mastery:</h4>
+                            <div id="advanced-mastery-level" class="text-xl font-bold text-indigo-700">Beginner</div>
+                        </div>
+                        
+                        <button id="restart-advanced-challenge" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modals -->
+        <div id="spacing-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Fix the spacing</h3>
+                <textarea id="spacing-textarea" class="w-full border border-gray-300 rounded-lg p-2 mb-4 h-24"></textarea>
+                <div class="flex justify-end">
+                    <button id="cancel-spacing" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2">Cancel</button>
+                    <button id="check-spacing" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Check</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="capitalization-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Fix the capitalization</h3>
+                <textarea id="capitalization-textarea" class="w-full border border-gray-300 rounded-lg p-2 mb-4 h-24"></textarea>
+                <div class="flex justify-end">
+                    <button id="cancel-capitalization" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2">Cancel</button>
+                    <button id="check-capitalization" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Check</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="challenge-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Fix all errors</h3>
+                <textarea id="challenge-textarea" class="w-full border border-gray-300 rounded-lg p-2 mb-4 h-36"></textarea>
+                <div class="flex justify-end">
+                    <button id="cancel-challenge-edit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2">Cancel</button>
+                    <button id="save-challenge-edit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Save</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="advanced-challenge-modal" class="modal">
+            <div class="modal-content">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Fix all advanced punctuation errors</h3>
+                <textarea id="advanced-challenge-textarea" class="w-full border border-gray-300 rounded-lg p-2 mb-4 h-36"></textarea>
+                <div class="flex justify-end">
+                    <button id="cancel-advanced-challenge-edit" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2">Cancel</button>
+                    <button id="save-advanced-challenge-edit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Save</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feedback Toast -->
+        <div id="feedback-toast" class="feedback-toast"></div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="text-center text-indigo-200 text-sm flex justify-center items-center">
+                <p class="mr-2"><a href="https://www.aaronshi.cc" target="_blank" rel="noopener noreferrer" class="flex items-center hover:text-white transition duration-300">
+                    Go to AaronShi.cc</a></p>
+                <span class="mx-2">|</span>
+                <a href="https://app.aaronshi.cc" target="_blank" rel="noopener noreferrer" class="flex items-center hover:text-white transition duration-300">
+                    Back to AaronShi.cc App
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab Navigation
+            const tabs = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            function setActiveTab(tabId) {
+                tabs.forEach(tab => {
+                    if (tab.id === `tab-${tabId}`) {
+                        tab.classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                        tab.classList.remove('text-gray-500');
+                    } else {
+                        tab.classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+                        tab.classList.add('text-gray-500');
+                    }
+                });
+                
+                tabContents.forEach(content => {
+                    if (content.id === `${tabId}-content`) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            }
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.id.replace('tab-', '');
+                    setActiveTab(tabId);
+                });
+            });
+            
+            // Navigation buttons
+            document.getElementById('go-to-practice').addEventListener('click', () => {
+                setActiveTab('practice');
+            });
+            
+            document.getElementById('go-to-challenge').addEventListener('click', () => {
+                setActiveTab('challenge');
+            });
+            
+            document.getElementById('go-to-advanced').addEventListener('click', () => {
+                setActiveTab('advanced');
+            });
+            
+            // Feedback Toast Function
+            function showFeedbackToast(message, isSuccess) {
+                const toast = document.getElementById('feedback-toast');
+                toast.textContent = message;
+                toast.style.backgroundColor = isSuccess ? '#10b981' : '#ef4444';
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Exercise 1: Punctuation
+            let exercise1Score = 0;
+            
+            document.querySelectorAll('.punctuation-option').forEach(button => {
+                button.addEventListener('click', function() {
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+                    const questionDiv = this.closest('.question');
+                    
+                    // Remove previous selections
+                    questionDiv.querySelectorAll('.punctuation-option').forEach(btn => {
+                        btn.classList.remove('bg-green-200', 'bg-red-200');
+                        btn.classList.add('bg-gray-100');
+                    });
+                    
+                    if (isCorrect) {
+                        this.classList.remove('bg-gray-100');
+                        this.classList.add('bg-green-200');
+                        
+                        // Only increment score if this is the first correct answer for this question
+                        if (!questionDiv.classList.contains('answered-correctly')) {
+                            exercise1Score++;
+                            questionDiv.classList.add('answered-correctly');
+                            showFeedbackToast('Correct! Good job!', true);
+                        }
+                    } else {
+                        this.classList.remove('bg-gray-100');
+                        this.classList.add('bg-red-200');
+                        
+                        // If previously answered correctly, decrement score
+                        if (questionDiv.classList.contains('answered-correctly')) {
+                            exercise1Score--;
+                            questionDiv.classList.remove('answered-correctly');
+                        }
+                        showFeedbackToast('Not quite right. Try again!', false);
+                    }
+                    
+                    document.getElementById('exercise1-score').textContent = `Score: ${exercise1Score}/5`;
+                });
+            });
+            
+            document.getElementById('new-exercise1').addEventListener('click', function() {
+                // Reset score
+                exercise1Score = 0;
+                document.getElementById('exercise1-score').textContent = `Score: ${exercise1Score}/5`;
+                
+                // Reset all questions
+                document.querySelectorAll('.question').forEach(question => {
+                    question.classList.remove('answered-correctly');
+                    
+                    question.querySelectorAll('.punctuation-option').forEach(btn => {
+                        btn.classList.remove('bg-green-200', 'bg-red-200');
+                        btn.classList.add('bg-gray-100');
+                    });
+                });
+            });
+            
+            // Exercise 2: Spacing
+            let exercise2Score = 0;
+            let currentSpacingQuestion = null;
+            
+            document.querySelectorAll('.spacing-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    currentSpacingQuestion = this;
+                    const modal = document.getElementById('spacing-modal');
+                    const textarea = document.getElementById('spacing-textarea');
+                    
+                    textarea.value = this.textContent.trim();
+                    modal.style.display = 'flex';
+                    textarea.focus();
+                });
+            });
+            
+            document.getElementById('cancel-spacing').addEventListener('click', function() {
+                document.getElementById('spacing-modal').style.display = 'none';
+            });
+            
+            document.getElementById('check-spacing').addEventListener('click', function() {
+                const modal = document.getElementById('spacing-modal');
+                const textarea = document.getElementById('spacing-textarea');
+                const userAnswer = textarea.value.trim();
+                
+                if (currentSpacingQuestion) {
+                    const correctAnswer = currentSpacingQuestion.getAttribute('data-correct');
+                    
+                    // Update the question text
+                    currentSpacingQuestion.textContent = userAnswer;
+                    
+                    // Check if correct
+                    if (userAnswer === correctAnswer) {
+                        if (!currentSpacingQuestion.classList.contains('correct-answer')) {
+                            currentSpacingQuestion.classList.add('correct-answer');
+                            currentSpacingQuestion.classList.remove('wrong-answer');
+                            exercise2Score++;
+                            showFeedbackToast('Perfect spacing! Great job!', true);
+                        }
+                    } else {
+                        if (currentSpacingQuestion.classList.contains('correct-answer')) {
+                            currentSpacingQuestion.classList.remove('correct-answer');
+                            exercise2Score--;
+                        }
+                        currentSpacingQuestion.classList.add('wrong-answer');
+                        showFeedbackToast('Check your spacing again!', false);
+                    }
+                    
+                    document.getElementById('exercise2-score').textContent = `Score: ${exercise2Score}/3`;
+                }
+                
+                modal.style.display = 'none';
+            });
+            
+            document.getElementById('new-exercise2').addEventListener('click', function() {
+                // Reset score
+                exercise2Score = 0;
+                document.getElementById('exercise2-score').textContent = `Score: ${exercise2Score}/3`;
+                
+                // Reset all questions
+                document.querySelectorAll('.spacing-question').forEach(question => {
+                    question.classList.remove('correct-answer', 'wrong-answer');
+                    question.textContent = question.getAttribute('data-original-text') || question.textContent;
+                });
+                
+                // Store original text for future resets
+                document.querySelectorAll('.spacing-question').forEach(question => {
+                    if (!question.getAttribute('data-original-text')) {
+                        question.setAttribute('data-original-text', question.textContent);
+                    }
+                });
+            });
+            
+            // Store original text for spacing questions
+            document.querySelectorAll('.spacing-question').forEach(question => {
+                question.setAttribute('data-original-text', question.textContent);
+            });
+            
+            // Exercise 3: Capitalization
+            let exercise3Score = 0;
+            let currentCapitalizationQuestion = null;
+            
+            document.querySelectorAll('.capitalization-question').forEach(question => {
+                question.addEventListener('click', function() {
+                    currentCapitalizationQuestion = this;
+                    const modal = document.getElementById('capitalization-modal');
+                    const textarea = document.getElementById('capitalization-textarea');
+                    
+                    textarea.value = this.textContent.trim();
+                    modal.style.display = 'flex';
+                    textarea.focus();
+                });
+            });
+            
+            document.getElementById('cancel-capitalization').addEventListener('click', function() {
+                document.getElementById('capitalization-modal').style.display = 'none';
+            });
+            
+            document.getElementById('check-capitalization').addEventListener('click', function() {
+                const modal = document.getElementById('capitalization-modal');
+                const textarea = document.getElementById('capitalization-textarea');
+                const userAnswer = textarea.value.trim();
+                
+                if (currentCapitalizationQuestion) {
+                    const correctAnswer = currentCapitalizationQuestion.getAttribute('data-correct');
+                    
+                    // Update the question text
+                    currentCapitalizationQuestion.textContent = userAnswer;
+                    
+                    // Check if correct
+                    if (userAnswer === correctAnswer) {
+                        if (!currentCapitalizationQuestion.classList.contains('correct-answer')) {
+                            currentCapitalizationQuestion.classList.add('correct-answer');
+                            currentCapitalizationQuestion.classList.remove('wrong-answer');
+                            exercise3Score++;
+                            showFeedbackToast('Perfect capitalization! Excellent!', true);
+                        }
+                    } else {
+                        if (currentCapitalizationQuestion.classList.contains('correct-answer')) {
+                            currentCapitalizationQuestion.classList.remove('correct-answer');
+                            exercise3Score--;
+                        }
+                        currentCapitalizationQuestion.classList.add('wrong-answer');
+                        showFeedbackToast('Check your capitalization again!', false);
+                    }
+                    
+                    document.getElementById('exercise3-score').textContent = `Score: ${exercise3Score}/3`;
+                }
+                
+                modal.style.display = 'none';
+            });
+            
+            document.getElementById('new-exercise3').addEventListener('click', function() {
+                // Reset score
+                exercise3Score = 0;
+                document.getElementById('exercise3-score').textContent = `Score: ${exercise3Score}/3`;
+                
+                // Reset all questions
+                document.querySelectorAll('.capitalization-question').forEach(question => {
+                    question.classList.remove('correct-answer', 'wrong-answer');
+                    question.textContent = question.getAttribute('data-original-text') || question.textContent;
+                });
+                
+                // Store original text for future resets
+                document.querySelectorAll('.capitalization-question').forEach(question => {
+                    if (!question.getAttribute('data-original-text')) {
+                        question.setAttribute('data-original-text', question.textContent);
+                    }
+                });
+            });
+            
+            // Store original text for capitalization questions
+            document.querySelectorAll('.capitalization-question').forEach(question => {
+                question.setAttribute('data-original-text', question.textContent);
+            });
+            
+            // Challenge
+            const challengeTexts = [
+                {
+                    text: "last summer i visited paris rome and barcelona the weather was amazing do you know what i enjoyed most it was the food my favorite restaurants were cafe marche in paris trattoria romano in rome and el quim in barcelona",
+                    correct: "Last summer I visited Paris, Rome, and Barcelona. The weather was amazing! Do you know what I enjoyed most? It was the food. My favorite restaurants were Café Marché in Paris, Trattoria Romano in Rome, and El Quim in Barcelona."
+                },
+                {
+                    text: "have you ever read the book harry potter and the sorcerer's stone it was written by j k rowling the main characters are harry ron and hermione they study at hogwarts school of witchcraft and wizardry",
+                    correct: "Have you ever read the book \"Harry Potter and the Sorcerer's Stone\"? It was written by J.K. Rowling. The main characters are Harry, Ron, and Hermione. They study at Hogwarts School of Witchcraft and Wizardry."
+                },
+                {
+                    text: "my friend sarah visited new york city last april she saw many famous landmarks the statue of liberty times square and central park were her favorites she said new york is an amazing city",
+                    correct: "My friend Sarah visited New York City last April. She saw many famous landmarks. The Statue of Liberty, Times Square, and Central Park were her favorites. She said, \"New York is an amazing city!\""
+                },
+                {
+                    "text": "yesterday i went to the zoo with my cousins we saw lions tigers and giraffes it was a fun day we even watched a bird show did you know parrots can talk",
+                    "correct": "Yesterday I went to the zoo with my cousins. We saw lions, tigers, and giraffes. It was a fun day! We even watched a bird show. Did you know parrots can talk?"
+                },
+                {
+                    "text": "on monday morning mr thompson gave us a surprise quiz nobody was ready for it the questions were difficult confusing and long i hope we don't get another quiz soon",
+                    "correct": "On Monday morning, Mr. Thompson gave us a surprise quiz. Nobody was ready for it. The questions were difficult, confusing, and long. I hope we don't get another quiz soon!"
+                },
+                {
+                    "text": "emma loves painting she uses watercolors acrylics and oils last week she painted a sunset a mountain and a field of flowers her work is now displayed at the community center",
+                    "correct": "Emma loves painting. She uses watercolors, acrylics, and oils. Last week, she painted a sunset, a mountain, and a field of flowers. Her work is now displayed at the community center."
+                },
+                {
+                    "text": "my birthday is in october this year i'm planning a costume party everyone must dress as their favorite movie character isn't that a cool idea i hope people get creative",
+                    "correct": "My birthday is in October. This year, I'm planning a costume party. Everyone must dress as their favorite movie character. Isn't that a cool idea? I hope people get creative!"
+                },
+                {
+                    "text": "we traveled to tokyo kyoto and osaka during our trip to japan each city had something special tokyo was busy kyoto was peaceful and osaka was fun i want to go back someday",
+                    "correct": "We traveled to Tokyo, Kyoto, and Osaka during our trip to Japan. Each city had something special. Tokyo was busy, Kyoto was peaceful, and Osaka was fun. I want to go back someday!"
+                },
+                {
+                    "text": "my teacher said remember to bring your books pencils and notebooks to class she also reminded us to study for the test on friday i need to prepare tonight",
+                    "correct": "My teacher said, \"Remember to bring your books, pencils, and notebooks to class.\" She also reminded us to study for the test on Friday. I need to prepare tonight."
+                },
+                {
+                    "text": "on saturday we watched the movie finding nemo it was really funny sad and exciting my little brother laughed so much he also cried when nemo got lost",
+                    "correct": "On Saturday, we watched the movie *Finding Nemo*. It was really funny, sad, and exciting. My little brother laughed so much! He also cried when Nemo got lost."
+                },
+                {
+                    "text": "there are three things i love about winter snow hot chocolate and holidays when it snows i build a snowman drink cocoa and relax by the fireplace it's the best season",
+                    "correct": "There are three things I love about winter: snow, hot chocolate, and holidays. When it snows, I build a snowman, drink cocoa, and relax by the fireplace. It's the best season!"
+                },
+                {
+                    "text": "last night we had dinner at grandma's house she made spaghetti garlic bread and salad we played cards afterwards and told stories it was a lovely evening",
+                    "correct": "Last night, we had dinner at Grandma's house. She made spaghetti, garlic bread, and salad. We played cards afterward and told stories. It was a lovely evening."
+                },
+                {
+                    "text": "during science class we learned about the planets mercury venus earth and mars are the closest to the sun did you know mars is called the red planet",
+                    "correct": "During science class, we learned about the planets. Mercury, Venus, Earth, and Mars are the closest to the sun. Did you know Mars is called the Red Planet?"
+                },
+                {
+                    "text": "although i was tired i decided to finish the report it was due the next day and i didn't want to rush in the morning i stayed up until midnight proofreading revising and formatting",
+                    "correct": "Although I was tired, I decided to finish the report. It was due the next day, and I didn't want to rush in the morning. I stayed up until midnight, proofreading, revising, and formatting."
+                },
+                {
+                    "text": "every saturday morning my dad makes pancakes eggs and bacon for breakfast it's become a family tradition we all sit around the table laugh and share stories",
+                    "correct": "Every Saturday morning, my dad makes pancakes, eggs, and bacon for breakfast. It's become a family tradition. We all sit around the table, laugh, and share stories."
+                },
+                {
+                    "text": "my cousin who lives in australia is coming to visit next month she's never been to the united states before we plan to take her to san francisco los angeles and yosemite",
+                    "correct": "My cousin, who lives in Australia, is coming to visit next month. She's never been to the United States before. We plan to take her to San Francisco, Los Angeles, and Yosemite."
+                },
+                {
+                    "text": "did you hear that our school is starting a robotics club i'm really excited to join i've always been interested in technology programming and building things",
+                    "correct": "Did you hear that our school is starting a robotics club? I'm really excited to join! I've always been interested in technology, programming, and building things."
+                },
+                {
+                    "text": "after the storm ended we went outside to check the damage branches were on the ground the streetlights weren't working and the power was out for hours",
+                    "correct": "After the storm ended, we went outside to check the damage. Branches were on the ground, the streetlights weren't working, and the power was out for hours."
+                },
+                {
+                    "text": "my sister wants to become a veterinarian she's always loved animals especially dogs cats and horses last summer she volunteered at an animal shelter",
+                    "correct": "My sister wants to become a veterinarian. She's always loved animals—especially dogs, cats, and horses. Last summer, she volunteered at an animal shelter."
+                },
+                {
+                    "text": "the concert last night was incredible the band played songs from their new album and the crowd went wild my favorite part was when they performed the encore",
+                    "correct": "The concert last night was incredible! The band played songs from their new album, and the crowd went wild. My favorite part was when they performed the encore."
+                },
+                {
+                    "text": "before you leave don't forget your phone wallet and keys also make sure the stove is off the windows are closed and the door is locked",
+                    "correct": "Before you leave, don't forget your phone, wallet, and keys. Also, make sure the stove is off, the windows are closed, and the door is locked."
+                },
+                {
+                    "text": "in history class we discussed world war ii our teacher mentioned important events like d-day the holocaust and the bombing of hiroshima it was a very emotional lesson",
+                    "correct": "In history class, we discussed World War II. Our teacher mentioned important events like D-Day, the Holocaust, and the bombing of Hiroshima. It was a very emotional lesson."
+                },
+                {
+                    "text": "this weekend i'm going hiking in the mountains i packed water snacks a map and a flashlight i hope the weather stays sunny and cool",
+                    "correct": "This weekend, I'm going hiking in the mountains. I packed water, snacks, a map, and a flashlight. I hope the weather stays sunny and cool!"
+                }
+            ];
+            
+            let currentChallengeIndex = 0;
+            
+            document.getElementById('challenge-text').addEventListener('click', function() {
+                const modal = document.getElementById('challenge-modal');
+                const textarea = document.getElementById('challenge-textarea');
+                
+                textarea.value = this.textContent.trim();
+                modal.style.display = 'flex';
+                textarea.focus();
+            });
+            
+            document.getElementById('cancel-challenge-edit').addEventListener('click', function() {
+                document.getElementById('challenge-modal').style.display = 'none';
+            });
+            
+            document.getElementById('save-challenge-edit').addEventListener('click', function() {
+                const modal = document.getElementById('challenge-modal');
+                const textarea = document.getElementById('challenge-textarea');
+                const challengeText = document.getElementById('challenge-text');
+                
+                challengeText.textContent = textarea.value.trim();
+                modal.style.display = 'none';
+            });
+            
+            document.getElementById('check-challenge').addEventListener('click', function() {
+                const userText = document.getElementById('challenge-text').textContent.trim();
+                const correctText = challengeTexts[currentChallengeIndex].correct;
+                
+                // Calculate score based on correct elements
+                let score = 0;
+                
+                // Check for capitalization at beginning of sentences
+                const userSentences = userText.split(/[.!?]+/).filter(s => s.trim() !== '');
+                const correctSentences = correctText.split(/[.!?]+/).filter(s => s.trim() !== '');
+                
+                for (let i = 0; i < Math.min(userSentences.length, correctSentences.length); i++) {
+                    if (userSentences[i].trim()[0] === correctSentences[i].trim()[0]) {
+                        score++;
+                    }
+                }
+                
+                // Check for correct punctuation count
+                const userPeriods = (userText.match(/\./g) || []).length;
+                const correctPeriods = (correctText.match(/\./g) || []).length;
+                score += Math.min(userPeriods, correctPeriods);
+                
+                const userCommas = (userText.match(/,/g) || []).length;
+                const correctCommas = (correctText.match(/,/g) || []).length;
+                score += Math.min(userCommas, correctCommas);
+                
+                const userExclamations = (userText.match(/!/g) || []).length;
+                const correctExclamations = (correctText.match(/!/g) || []).length;
+                score += Math.min(userExclamations, correctExclamations);
+                
+                const userQuestions = (userText.match(/\?/g) || []).length;
+                const correctQuestions = (correctText.match(/\?/g) || []).length;
+                score += Math.min(userQuestions, correctQuestions);
+                
+                // Cap score at 10
+                score = Math.min(score, 10);
+                
+                // Show results
+                document.getElementById('final-score').textContent = `Your score: ${score}/10`;
+                
+                // Determine mastery level
+                let masteryLevel = '';
+                if (score >= 9) {
+                    masteryLevel = 'Punctuation Master';
+                    showFeedbackToast('Amazing work! You\'re a Punctuation Master!', true);
+                } else if (score >= 7) {
+                    masteryLevel = 'Advanced';
+                    showFeedbackToast('Great job! You have advanced punctuation skills!', true);
+                } else if (score >= 5) {
+                    masteryLevel = 'Intermediate';
+                    showFeedbackToast('Good effort! Keep practicing!', true);
+                } else {
+                    masteryLevel = 'Beginner';
+                    showFeedbackToast('Keep practicing to improve your skills!', false);
+                }
+                
+                document.getElementById('mastery-level').textContent = masteryLevel;
+                document.getElementById('results-container').classList.remove('hidden');
+            });
+            
+            document.getElementById('new-challenge').addEventListener('click', function() {
+                // Select a new challenge
+                currentChallengeIndex = (currentChallengeIndex + 1) % challengeTexts.length;
+                document.getElementById('challenge-text').textContent = challengeTexts[currentChallengeIndex].text;
+                
+                // Hide results
+                document.getElementById('results-container').classList.add('hidden');
+            });
+            
+            document.getElementById('restart-challenge').addEventListener('click', function() {
+                // Reset current challenge
+                document.getElementById('challenge-text').textContent = challengeTexts[currentChallengeIndex].text;
+                
+                // Hide results
+                document.getElementById('results-container').classList.add('hidden');
+            });
+            
+            // Advanced Exercise
+            let advancedExerciseScore = 0;
+            
+            document.querySelectorAll('#advanced-exercise-questions .punctuation-option').forEach(button => {
+                button.addEventListener('click', function() {
+                    const isCorrect = this.getAttribute('data-correct') === 'true';
+                    const questionDiv = this.closest('.question');
+                    
+                    // Remove previous selections
+                    questionDiv.querySelectorAll('.punctuation-option').forEach(btn => {
+                        btn.classList.remove('bg-green-200', 'bg-red-200');
+                        btn.classList.add('bg-gray-100');
+                    });
+                    
+                    if (isCorrect) {
+                        this.classList.remove('bg-gray-100');
+                        this.classList.add('bg-green-200');
+                        
+                        // Only increment score if this is the first correct answer for this question
+                        if (!questionDiv.classList.contains('answered-correctly')) {
+                            advancedExerciseScore++;
+                            questionDiv.classList.add('answered-correctly');
+                            showFeedbackToast('Correct! You know your advanced punctuation!', true);
+                        }
+                    } else {
+                        this.classList.remove('bg-gray-100');
+                        this.classList.add('bg-red-200');
+                        
+                        // If previously answered correctly, decrement score
+                        if (questionDiv.classList.contains('answered-correctly')) {
+                            advancedExerciseScore--;
+                            questionDiv.classList.remove('answered-correctly');
+                        }
+                        showFeedbackToast('Not quite right. Try again!', false);
+                    }
+                    
+                    document.getElementById('advanced-exercise-score').textContent = `Score: ${advancedExerciseScore}/5`;
+                });
+            });
+            
+            document.getElementById('new-advanced-exercise').addEventListener('click', function() {
+                // Reset score
+                advancedExerciseScore = 0;
+                document.getElementById('advanced-exercise-score').textContent = `Score: ${advancedExerciseScore}/5`;
+                
+                // Reset all questions
+                document.querySelectorAll('#advanced-exercise-questions .question').forEach(question => {
+                    question.classList.remove('answered-correctly');
+                    
+                    question.querySelectorAll('.punctuation-option').forEach(btn => {
+                        btn.classList.remove('bg-green-200', 'bg-red-200');
+                        btn.classList.add('bg-gray-100');
+                    });
+                });
+            });
+            
+            // Advanced Challenge
+            const advancedChallengeTexts = [
+                {
+                    text: "the professor said the exam which is scheduled for friday will cover chapters 1 5 she mentioned that we should focus on three main topics grammar vocabulary and writing she added i expect everyone to be well prepared",
+                    correct: "The professor said, \"The exam, which is scheduled for Friday, will cover chapters 1-5.\" She mentioned that we should focus on three main topics: grammar, vocabulary, and writing. She added, \"I expect everyone to be well-prepared.\""
+                },
+                {
+                    text: "have you read the article how to improve your writing skills it was published in the new york times the author dr smith suggests three strategies practice regularly read widely and seek feedback",
+                    correct: "Have you read the article \"How to Improve Your Writing Skills\"? It was published in The New York Times. The author, Dr. Smith, suggests three strategies: practice regularly, read widely, and seek feedback."
+                },
+                {
+                    text: "the meeting which lasted for two hours was very productive we discussed the following topics budget planning marketing strategy and future goals the ceo concluded we need to implement these changes immediately",
+                    correct: "The meeting, which lasted for two hours, was very productive. We discussed the following topics: budget planning, marketing strategy, and future goals. The CEO concluded, \"We need to implement these changes immediately!\""
+                },
+                {
+                    "text": "according to the report climate change is accelerating rapidly the scientist explained it’s not just about temperature increases; it’s about sea levels rising extreme weather events and ecosystem collapse",
+                    "correct": "According to the report, climate change is accelerating rapidly. The scientist explained, \"It’s not just about temperature increases; it’s about sea levels rising, extreme weather events, and ecosystem collapse.\""
+                },
+                {
+                    "text": "please read chapter 4 the great depression chapter 5 world war ii and chapter 6 postwar recovery for monday’s discussion the professor emphasized these sections are crucial for your understanding",
+                    "correct": "Please read Chapter 4: \"The Great Depression,\" Chapter 5: \"World War II,\" and Chapter 6: \"Postwar Recovery\" for Monday’s discussion. The professor emphasized, \"These sections are crucial for your understanding.\""
+                },
+                {
+                    "text": "lisa who’s always well-prepared arrived late today she said sorry i got stuck in traffic—it was a complete standstill",
+                    "correct": "Lisa—who’s always well-prepared—arrived late today. She said, \"Sorry, I got stuck in traffic—it was a complete standstill.\""
+                },
+                {
+                    "text": "the company announced its new policy effective immediately employees must work from the office three days a week this change they noted is to promote collaboration innovation and team morale",
+                    "correct": "The company announced its new policy: effective immediately, employees must work from the office three days a week. This change, they noted, is to promote collaboration, innovation, and team morale."
+                },
+                {
+                    "text": "did he really say i dont need to attend the meeting if so ill make other plans instead perhaps a client call or project review",
+                    "correct": "Did he really say, \"I don't need to attend the meeting\"? If so, I'll make other plans instead—perhaps a client call or project review."
+                },
+                {
+                    "text": "emma said i finished reading the novel it was brilliant the pacing the characters the ending all of it she gave it 5 stars on goodreads",
+                    "correct": "Emma said, \"I finished reading the novel. It was brilliant—the pacing, the characters, the ending... all of it.\" She gave it 5 stars on Goodreads."
+                },
+                {
+                    "text": "on the whiteboard the teacher wrote three goals for the semester improve writing skills expand vocabulary and develop critical thinking (especially through essays)",
+                    "correct": "On the whiteboard, the teacher wrote three goals for the semester: improve writing skills, expand vocabulary, and develop critical thinking (especially through essays)."
+                },
+                {
+                    "text": "in her keynote speech dr carter stated there’s no innovation without risk and no progress without failure she paused then added success is rarely a straight line",
+                    "correct": "In her keynote speech, Dr. Carter stated, \"There’s no innovation without risk, and no progress without failure.\" She paused, then added, \"Success is rarely a straight line.\""
+                },
+                {
+                    "text": "three cities were shortlisted for the summit: singapore, known for its efficiency; barcelona, famous for its architecture; and vancouver, praised for its sustainability each offered unique advantages",
+                    "correct": "Three cities were shortlisted for the summit: Singapore, known for its efficiency; Barcelona, famous for its architecture; and Vancouver, praised for its sustainability. Each offered unique advantages."
+                },
+                {
+                    "text": "while editing the manuscript she noticed several issues inconsistent tone missing punctuation and unclear references the author later admitted i rushed the final draft",
+                    "correct": "While editing the manuscript, she noticed several issues: inconsistent tone, missing punctuation, and unclear references. The author later admitted, \"I rushed the final draft.\""
+                },
+                {
+                    "text": "dr jenkins asked have you all completed the assignment titled climate change impacts on coastal cities she emphasized that it's due on monday no exceptions will be made she said this paper is crucial to your final grade",
+                    "correct": "Dr. Jenkins asked, \"Have you all completed the assignment titled 'Climate Change: Impacts on Coastal Cities'?\" She emphasized that it's due on Monday—no exceptions will be made. She said, \"This paper is crucial to your final grade.\""
+                },
+                {
+                    "text": "during the seminar the speaker discussed three key concepts leadership communication and accountability she said remember success depends not only on skills but also on attitude",
+                    "correct": "During the seminar, the speaker discussed three key concepts: leadership, communication, and accountability. She said, \"Remember—success depends not only on skills, but also on attitude.\""
+                },
+                {
+                    "text": "julia said my favorite novels include pride and prejudice to kill a mockingbird and 1984 she added i re-read them every year because they offer new insights each time",
+                    "correct": "Julia said, \"My favorite novels include *Pride and Prejudice*, *To Kill a Mockingbird*, and *1984.*\" She added, \"I re-read them every year because they offer new insights each time.\""
+                },
+                {
+                    "text": "please review the following chapters chapter 2 chapter 4 and chapter 7 these sections cover critical content midterm material and case studies so take notes carefully",
+                    "correct": "Please review the following chapters: Chapter 2, Chapter 4, and Chapter 7. These sections cover critical content, midterm material, and case studies—so take notes carefully."
+                },
+                {
+                    "text": "it's important to differentiate between these terms their there and they're misuse can lead to confusion in both academic and professional writing",
+                    "correct": "It's important to differentiate between these terms: their, there, and they're. Misuse can lead to confusion in both academic and professional writing."
+                },
+                {
+                    "text": "she whispered i don't know what to say... i feel like i've failed them all he responded no you haven't you did your best and that's what matters most",
+                    "correct": "She whispered, \"I don't know what to say... I feel like I've failed them all.\" He responded, \"No, you haven't. You did your best—and that's what matters most.\""
+                },
+                {
+                    "text": "in her lecture dr peterson explained that empathy resilience and adaptability are essential skills for leaders she noted these qualities can't be taught they must be practiced",
+                    "correct": "In her lecture, Dr. Peterson explained that empathy, resilience, and adaptability are essential skills for leaders. She noted, \"These qualities can't be taught; they must be practiced.\""
+                },
+                {
+                    "text": "he's always late for meetings his excuses traffic overslept or lost track of time are becoming repetitive the manager said we can't tolerate this any longer",
+                    "correct": "He's always late for meetings. His excuses—traffic, overslept, or lost track of time—are becoming repetitive. The manager said, \"We can't tolerate this any longer.\""
+                },
+                {
+                    "text": "after reviewing the proposal the board made a decision approve the funding with conditions they stated however any delay in reporting will result in penalties",
+                    "correct": "After reviewing the proposal, the board made a decision: approve the funding—with conditions. They stated, \"However, any delay in reporting will result in penalties.\""
+                },
+                {
+                    "text": "maria asked do you think the quote to be or not to be is still relevant today john replied absolutely its meaning still resonates with people facing big decisions",
+                    "correct": "Maria asked, \"Do you think the quote 'To be, or not to be' is still relevant today?\" John replied, \"Absolutely. Its meaning still resonates with people facing big decisions.\""
+                }
+            ];
+            
+            let currentAdvancedChallengeIndex = 0;
+            
+            document.getElementById('advanced-challenge-text').addEventListener('click', function() {
+                const modal = document.getElementById('advanced-challenge-modal');
+                const textarea = document.getElementById('advanced-challenge-textarea');
+                
+                textarea.value = this.textContent.trim();
+                modal.style.display = 'flex';
+                textarea.focus();
+            });
+            
+            document.getElementById('cancel-advanced-challenge-edit').addEventListener('click', function() {
+                document.getElementById('advanced-challenge-modal').style.display = 'none';
+            });
+            
+            document.getElementById('save-advanced-challenge-edit').addEventListener('click', function() {
+                const modal = document.getElementById('advanced-challenge-modal');
+                const textarea = document.getElementById('advanced-challenge-textarea');
+                const challengeText = document.getElementById('advanced-challenge-text');
+                
+                challengeText.textContent = textarea.value.trim();
+                modal.style.display = 'none';
+            });
+            
+            document.getElementById('check-advanced-challenge').addEventListener('click', function() {
+                const userText = document.getElementById('advanced-challenge-text').textContent.trim();
+                const correctText = advancedChallengeTexts[currentAdvancedChallengeIndex].correct;
+                
+                // Calculate score based on correct elements
+                let score = 0;
+                
+                // Check for capitalization at beginning of sentences
+                const userSentences = userText.split(/[.!?]+/).filter(s => s.trim() !== '');
+                const correctSentences = correctText.split(/[.!?]+/).filter(s => s.trim() !== '');
+                
+                for (let i = 0; i < Math.min(userSentences.length, correctSentences.length); i++) {
+                    if (userSentences[i].trim()[0] === correctSentences[i].trim()[0]) {
+                        score++;
+                    }
+                }
+                
+                // Check for correct punctuation count (including advanced punctuation)
+                const punctuationMarks = ['.', ',', '!', '?', ':', ';', '-', '—', '...', '"', "'", '(', ')'];
+                
+                for (const mark of punctuationMarks) {
+                    const userCount = (userText.match(new RegExp('\\' + mark, 'g')) || []).length;
+                    const correctCount = (correctText.match(new RegExp('\\' + mark, 'g')) || []).length;
+                    score += Math.min(userCount, correctCount);
+                }
+                
+                // Cap score at 10
+                score = Math.min(score, 10);
+                
+                // Show results
+                document.getElementById('advanced-final-score').textContent = `Your score: ${score}/10`;
+                
+                // Determine mastery level
+                let masteryLevel = '';
+                if (score >= 9) {
+                    masteryLevel = 'Advanced Punctuation Master';
+                    showFeedbackToast('Outstanding! You\'re an Advanced Punctuation Master!', true);
+                } else if (score >= 7) {
+                    masteryLevel = 'Advanced';
+                    showFeedbackToast('Great job with advanced punctuation!', true);
+                } else if (score >= 5) {
+                    masteryLevel = 'Intermediate';
+                    showFeedbackToast('Good effort! Keep practicing advanced punctuation!', true);
+                } else {
+                    masteryLevel = 'Beginner';
+                    showFeedbackToast('Advanced punctuation takes practice. Keep going!', false);
+                }
+                
+                document.getElementById('advanced-mastery-level').textContent = masteryLevel;
+                document.getElementById('advanced-results-container').classList.remove('hidden');
+            });
+            
+            document.getElementById('new-advanced-challenge').addEventListener('click', function() {
+                // Select a new challenge
+                currentAdvancedChallengeIndex = (currentAdvancedChallengeIndex + 1) % advancedChallengeTexts.length;
+                document.getElementById('advanced-challenge-text').textContent = advancedChallengeTexts[currentAdvancedChallengeIndex].text;
+                
+                // Hide results
+                document.getElementById('advanced-results-container').classList.add('hidden');
+            });
+            
+            document.getElementById('restart-advanced-challenge').addEventListener('click', function() {
+                // Reset current challenge
+                document.getElementById('advanced-challenge-text').textContent = advancedChallengeTexts[currentAdvancedChallengeIndex].text;
+                
+                // Hide results
+                document.getElementById('advanced-results-container').classList.add('hidden');
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93d22661758f4a3f',t:'MTc0NjgwMzcwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
